@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, Image, StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { FlatList, Image, Text, View, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import axios from 'axios';
-import { useLocalSearchParams, useRouter } from 'expo-router'; 
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';  // Icon için
+import 'nativewind';  // NativeWind'i dahil edin
 
 interface Product {
   id: number;
   title: string;
   price: number;
   image: string;
-  category: string;  
+  category: string;
 }
 
 export default function HomeScreen() {
   const params = useLocalSearchParams();
   const { username } = params;
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); // Filtrelenmiş ürünler
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');  // Arama çubuğu için state
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);  // Seçilen kategori
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const [categories, setCategories] = useState<string[]>([]); // Tüm kategoriler
+  const [categories, setCategories] = useState<string[]>([]);
 
-  const router = useRouter();  // router hook'u ile yönlendirme yapacağız
+  const router = useRouter();
 
   // Fetch products from the API
   useEffect(() => {
@@ -31,9 +33,8 @@ export default function HomeScreen() {
         const response = await axios.get('https://fakestoreapi.com/products');
         const productsData: Product[] = response.data;
         setProducts(productsData);
-        setFilteredProducts(productsData); // Başlangıçta tüm ürünler gösterilecek
+        setFilteredProducts(productsData);
 
-        // Benzersiz kategorileri al ve string[] olarak belirt
         const uniqueCategories: string[] = [...new Set(productsData.map((product: Product) => product.category))];
         setCategories(uniqueCategories);
         setLoading(false);
@@ -45,40 +46,36 @@ export default function HomeScreen() {
     fetchProducts();
   }, []);
 
-  // Arama ve filtreleme işlemini gerçekleştiren fonksiyon
+  // Filter products based on search query and selected category
   useEffect(() => {
     const filtered = products.filter(product =>
-      // Hem title'a göre arama, hem de kategoriye göre filtreleme
       product.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (!selectedCategory || product.category === selectedCategory)  // Eğer kategori seçilmemişse tüm ürünler gösterilir
+      (!selectedCategory || product.category === selectedCategory)
     );
     setFilteredProducts(filtered);
   }, [searchQuery, selectedCategory, products]);
 
-  // Kategoriyi seçme ve filtreleme
   const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category === selectedCategory ? null : category); // Aynı kategoriye tıklanırsa filtreyi kaldır
+    setSelectedCategory(category === selectedCategory ? null : category);
   };
 
-  // Render the product item with a touchable wrapper
   const renderProduct = ({ item }: { item: Product }) => (
     <TouchableOpacity
-      style={styles.productContainer}
+      className="bg-white rounded-lg p-4 mb-4 shadow-md"
       onPress={() => router.push({
         pathname: '/detailedProducts',
-        params: { productId: item.id }  
+        params: { productId: item.id }
       })}
     >
-      <Image source={{ uri: item.image }} style={styles.productImage} />
-      <Text style={styles.productTitle}>{item.title}</Text>
-      <Text style={styles.productPrice}>${item.price}</Text>
+      <Image source={{ uri: item.image }} className="w-40 h-40 mb-4 object-contain" />
+      <Text className="text-lg font-semibold text-center">{item.title}</Text>
+      <Text className="text-base text-gray-500 text-center">${item.price}</Text>
     </TouchableOpacity>
   );
 
-  // Show loading spinner while data is being fetched
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#0000ff" />
         <Text>Loading products...</Text>
       </View>
@@ -86,103 +83,84 @@ export default function HomeScreen() {
   }
 
   return (
-    
-    <View style={styles.container}>
-       <Text>Welcome, {username}!</Text>
-      {/* Arama çubuğu */}
+    <View className="flex-1 p-4 bg-gray-100">
+      {/* Header with Welcome Text and Cart Icon */}
+      <View className="flex-row justify-between items-center mb-4">
+        <Text className="text-xl font-semibold">Welcome, {username}!</Text>
+        {/* Cart Icon */}
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/cart",
+              params: { username }, // username parametresi ile geçiş yapılıyor
+            })
+          }
+        >
+          <Ionicons name="cart-outline" size={28} color="black" />
+        </TouchableOpacity>
+      </View>
+  
+      {/* Search Input */}
       <TextInput
-        style={styles.searchInput}
+        className="h-12 border border-gray-300 rounded-lg mb-4 px-4 bg-white"
         placeholder="Search by title..."
         value={searchQuery}
         onChangeText={text => setSearchQuery(text)}
       />
-
-      {/* Kategori filtreleme */}
-      <ScrollView horizontal style={styles.categoriesContainer}>
+  
+      {/* Categories */}
+      <ScrollView horizontal className="mb-4">
         {categories.map((category) => (
           <TouchableOpacity
             key={category}
-            style={[
-              styles.categoryButton,
-              selectedCategory === category && styles.selectedCategoryButton // Seçilen kategoriyi vurgulama
-            ]}
+            className={`px-4 py-2 rounded-lg mr-5 mb-10 w-32 h-10 justify-center items-center ${
+              selectedCategory === category ? 'bg-blue-600' : 'bg-gray-200'
+            }`}
             onPress={() => handleCategorySelect(category)}
           >
-            <Text style={styles.categoryButtonText}>{category}</Text>
+            <Text
+              className={`text-sm ${
+                selectedCategory === category ? 'text-white' : 'text-gray-800'
+              }`}
+            >
+              {category}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      {/* Ürünleri listeleme */}
+  
+      {/* Product List */}
       <FlatList
-        data={filteredProducts}  // Filtrelenmiş ürünler gösterilecek
-        renderItem={renderProduct}
+        data={filteredProducts}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            className="bg-white rounded-lg p-3 mb-10 shadow-md w-44 h-70 mx-1"  // Sabit genişlik (w-44) ve sabit yükseklik (h-70)
+            onPress={() =>
+              router.push({
+                pathname: "/detailedProducts",
+                params: { productId: item.id },
+              })
+            }
+          >
+            <Image
+              source={{ uri: item.image }}
+              className="w-38 h-40 mb-2 object-contain"  // Sabit yükseklik (h-40), genişlik tam kutuya göre (w-full)
+              resizeMode="contain"  // Görselin tamamının görünmesi için
+            />
+            <Text className="text-sm font-semibold text-center">
+              {item.title}
+            </Text>
+            <Text className="text-sm text-gray-500 text-center">
+              ${item.price}
+            </Text>
+          </TouchableOpacity>
+        )}
+        key={2} // FlatList'in yeniden render edilmesini sağlıyor
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: "space-between" }}  // Eşit boşluk bırakıyoruz
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ paddingBottom: 16 }}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  searchInput: {
-    height: 40,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  categoriesContainer: {
-    marginBottom: 10,
-  },
-  categoryButton: {
-    padding: 1,
-    backgroundColor: '#ddd',
-    borderRadius: 8,
-    marginRight: 8,
-  },
-  selectedCategoryButton: {
-    backgroundColor: '#007bff',  // Seçilen kategori için farklı renk
-  },
-  categoryButtonText: {
-    color: '#fff',
-    fontSize: 20,
-  },
-  list: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
-  productContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  productImage: {
-    width: 150,
-    height: 150,
-    resizeMode: 'contain',
-    marginBottom: 8,
-  },
-  productTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  productPrice: {
-    fontSize: 14,
-    color: '#888',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

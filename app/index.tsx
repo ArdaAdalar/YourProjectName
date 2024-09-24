@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';  // AsyncStorage import ediyoruz
 import axios from 'axios';  // Using axios to make API requests
 import 'nativewind'; // NativeWind stil dosyasını ekleyin
+import { Colors } from '@/constants/Colors';
 
 export default function IndexScreen() {
   const [username, setUsername] = useState('');
@@ -10,6 +12,28 @@ export default function IndexScreen() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Uygulama başladığında AsyncStorage'dan kullanıcı bilgilerini kontrol ediyoruz
+  useEffect(() => {
+    async function checkLogin() {
+      try {
+        const storedUsername = await AsyncStorage.getItem('username');
+        const storedPassword = await AsyncStorage.getItem('password');
+        
+        // Eğer kullanıcı bilgileri AsyncStorage'da varsa doğrudan home ekranına yönlendir
+        if (storedUsername && storedPassword) {
+          router.push({
+            pathname: '/home',
+            params: { username: storedUsername }
+          });
+        }
+      } catch (error) {
+        console.error('Error checking login:', error);
+      }
+    }
+    checkLogin();
+  }, []);
+
+  // Kullanıcı giriş yaptıktan sonra bilgileri AsyncStorage'a kaydetme ve yönlendirme
   const handleLogin = async () => {
     setLoading(true);
 
@@ -20,6 +44,11 @@ export default function IndexScreen() {
       });
 
       if (response.status === 200 && response.data.token) {
+        // AsyncStorage'a username ve password kaydet
+        await AsyncStorage.setItem('username', username);
+        await AsyncStorage.setItem('password', password);
+
+        // Home ekranına yönlendir
         router.push({
           pathname: '/home',
           params: { username: username }

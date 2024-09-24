@@ -5,6 +5,7 @@ module.exports = {
     "./app/**/*.{js,jsx,ts,tsx}",  // app klasörü altındaki tüm dosyalar
     "./app/*.{js,jsx,ts,tsx}",  // app klasörünün hemen altındaki dosyalar
   ],
+  darkMode: 'class',
   theme: {
     extend: {},
   },

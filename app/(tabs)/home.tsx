@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FlatList, Image, Text, View, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import axios from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';  // Icon için
-import 'nativewind';  // NativeWind'i dahil edin
+import { Ionicons } from '@expo/vector-icons';  
+import 'nativewind';  
 
 interface Product {
   id: number;
@@ -21,6 +21,8 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  
 
   const [categories, setCategories] = useState<string[]>([]);
 

@@ -5,6 +5,7 @@ import axios from 'axios';
 import 'nativewind';  // NativeWind'i dahil edin
 import { useColorScheme } from 'nativewind';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Counter from '@/components/counter';
 
 interface Product {
   id: number;
@@ -65,9 +66,12 @@ export default function DetailedProductScreen() {
 
   if (loading) {
     return (
+     
+
       <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#0000ff" />
         <Text>Loading product details...</Text>
+        
       </View>
     );
   }
@@ -89,13 +93,14 @@ export default function DetailedProductScreen() {
         <Text className="text-lg font-semibold text-center mb-2">{product.title}</Text>
         <Text className="text-xl font-bold text-blue-600 text-center mb-4">${product.price}</Text>
         <Text className="text-sm text-gray-500 text-center">{product.description}</Text>
+        <Counter />
 
         {/* Sepete Ekle Butonu */}
         <TouchableOpacity className="bg-blue-600 rounded-lg mt-6 p-3 justify-center items-center" onPress={() => console.log('Sepete eklendi')}>
           <Text className="text-white text-lg font-semibold">Add to Cart</Text>
         </TouchableOpacity>
       </View>
-
+      
       {/* Benzer Ürünler */}
       <View className="mt-8">
         <Text className= {`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-black'}`}>Similar Products</Text>

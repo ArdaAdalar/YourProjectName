@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Switch, Button } from 'react-native';
+import { View, Text, Switch, Button, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useColorScheme } from 'nativewind';  // NativeWind'in sağladığı useColorScheme hook'u
-import 'nativewind';  // NativeWind'i dahil edin
+import { useColorScheme } from 'nativewind';  
+import 'nativewind';  
+import { Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
 
 export default function CartScreen() {
-  const { colorScheme, toggleColorScheme } = useColorScheme();  // NativeWind'den colorScheme ve toggleColorScheme kullanımı
-  const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark');  // Başlangıçta cihazın temasına göre ayar
+  const { colorScheme, toggleColorScheme } = useColorScheme(); 
+  const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark');  
+  const params = useLocalSearchParams();
+  const { username } = params;
 
-  // AsyncStorage'dan daha önce kaydedilmiş bir tema var mı kontrol ediyoruz
+ 
+
+
   useEffect(() => {
     async function loadTheme() {
       try {
         const savedTheme = await AsyncStorage.getItem('theme');
         if (savedTheme) {
-          setIsDarkMode(savedTheme === 'dark');  // Eğer daha önce kaydedilmiş tema varsa, onu kullan
+          setIsDarkMode(savedTheme === 'dark');  
         }
       } catch (error) {
         console.error('Error loading theme:', error);
@@ -23,7 +29,6 @@ export default function CartScreen() {
     loadTheme();
   }, []);
 
-  // Temayı değiştirme ve AsyncStorage'a kaydetme
   const toggleTheme = async () => {
     toggleColorScheme();  // NativeWind'den gelen tema değiştirme fonksiyonu
     const newMode = !isDarkMode;
@@ -34,6 +39,10 @@ export default function CartScreen() {
       console.error('Error saving theme:', error);
     }
   };
+  
+
+
+  
 
   return (
     <View className={`flex-1 items-center justify-center p-4 ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
@@ -41,20 +50,23 @@ export default function CartScreen() {
         This is {isDarkMode ? 'Dark Mode' : 'Light Mode'}!
       </Text>
 
-      {/* Switch ile Tema Değiştirme */}
-      <Switch
-        value={isDarkMode}
-        onValueChange={toggleTheme}  // Switch ile temayı değiştir
-        thumbColor={isDarkMode ? '#fff' : '#000'}
-        trackColor={{ false: '#767577', true: '#81b0ff' }}
-      />
+      <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/home",
+              params: { username },
 
-      {/* Buton ile tema değiştirme */}
-      <Button 
-        title={`Switch to ${isDarkMode ? 'Light Mode' : 'Dark Mode'}`} 
-        onPress={toggleTheme}  // Butona basınca temayı değiştir
-        color={isDarkMode ? '#fff' : '#000'}
-      />
+              
+            })
+          }
+        >
+          <Ionicons name="home" size={28} color={colorScheme === 'dark' ? 'grey' : 'grey'}/>
+
+        </TouchableOpacity>
+        
+        <Button title="Toggle Theme" onPress={toggleTheme} />
     </View>
   );
 }
+
+

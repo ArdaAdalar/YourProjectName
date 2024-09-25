@@ -3,6 +3,8 @@ import { View, Text, Image, ActivityIndicator, ScrollView, TouchableOpacity } fr
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import axios from 'axios';
 import 'nativewind';  // NativeWind'i dahil edin
+import { useColorScheme } from 'nativewind';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Product {
   id: number;
@@ -13,6 +15,7 @@ interface Product {
   category: string;
 }
 
+
 export default function DetailedProductScreen() {
   const params = useLocalSearchParams();
   const { productId } = params;
@@ -22,6 +25,25 @@ export default function DetailedProductScreen() {
   const [loading, setLoading] = useState(true);
 
   const router = useRouter();
+  const { colorScheme} = useColorScheme();  
+  const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark'); 
+
+
+  useEffect(() => {
+    async function loadTheme() {
+      try {
+        const savedTheme = await AsyncStorage.getItem('theme');
+        if (savedTheme) {
+          setIsDarkMode(savedTheme === 'dark');  
+        }
+      } catch (error) {
+        console.error('Error loading theme:', error);
+      }
+    }
+    loadTheme();
+  }, []);
+
+  
 
   useEffect(() => {
     async function fetchProduct() {
@@ -59,7 +81,8 @@ export default function DetailedProductScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 p-4 bg-gray-100">
+    <ScrollView className={`flex-1 p-4 ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+      
       {/* Ürün Detayları */}
       <View className="bg-white rounded-lg p-4 shadow-md">
         <Image source={{ uri: product.image }} className="w-full h-60 object-contain mb-4" />
@@ -75,7 +98,8 @@ export default function DetailedProductScreen() {
 
       {/* Benzer Ürünler */}
       <View className="mt-8">
-        <Text className="text-lg font-bold mb-4">Similar Products</Text>
+        <Text className= {`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-black'}`}>Similar Products</Text>
+       
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {relatedProducts.map((item) => (
             <TouchableOpacity

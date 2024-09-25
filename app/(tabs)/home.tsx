@@ -5,6 +5,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';  
 import 'nativewind';  
 
+import { useColorScheme } from 'nativewind';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 interface Product {
   id: number;
   title: string;
@@ -22,6 +25,25 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const { colorScheme} = useColorScheme();  
+  const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark'); 
+
+
+  useEffect(() => {
+    async function loadTheme() {
+      try {
+        const savedTheme = await AsyncStorage.getItem('theme');
+        if (savedTheme) {
+          setIsDarkMode(savedTheme === 'dark');  
+        }
+      } catch (error) {
+        console.error('Error loading theme:', error);
+      }
+    }
+    loadTheme();
+  }, []);
+
+  
   
 
   const [categories, setCategories] = useState<string[]>([]);
@@ -48,7 +70,7 @@ export default function HomeScreen() {
     fetchProducts();
   }, []);
 
-  // Filter products based on search query and selected category
+ 
   useEffect(() => {
     const filtered = products.filter(product =>
       product.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -85,10 +107,12 @@ export default function HomeScreen() {
   }
 
   return (
-    <View className="flex-1 p-4 bg-gray-100">
+    <View className={`flex-1 items-center justify-center p-4 ${isDarkMode ? 'bg-black' : 'bg-wihte'}`}>
       {/* Header with Welcome Text and Cart Icon */}
       <View className="flex-row justify-between items-center mb-4">
-        <Text className="text-xl font-semibold">Welcome, {username}!</Text>
+      
+      <Text
+      className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}> Welcome, {username}! </Text>
         {/* Cart Icon */}
         <TouchableOpacity
           onPress={() =>
@@ -98,7 +122,9 @@ export default function HomeScreen() {
             })
           }
         >
-          <Ionicons name="cart-outline" size={28} color="black" />
+          
+          <Ionicons name="settings" size={28} color={colorScheme === 'dark' ? 'grey' : 'grey'} style={{ marginHorizontal: 10 }} />
+
         </TouchableOpacity>
       </View>
   

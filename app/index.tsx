@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';  // AsyncS
 import axios from 'axios';  // Using axios to make API requests
 import 'nativewind'; // NativeWind stil dosyasını ekleyin
 import { Colors } from '@/constants/Colors';
+import { useColorScheme } from 'nativewind';
 
 export default function IndexScreen() {
   const [username, setUsername] = useState('');
@@ -12,27 +13,26 @@ export default function IndexScreen() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Uygulama başladığında AsyncStorage'dan kullanıcı bilgilerini kontrol ediyoruz
+  const { colorScheme} = useColorScheme();  
+  const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark'); 
+
+
   useEffect(() => {
-    async function checkLogin() {
+    async function loadTheme() {
       try {
-        const storedUsername = await AsyncStorage.getItem('username');
-        const storedPassword = await AsyncStorage.getItem('password');
-        
-        // Eğer kullanıcı bilgileri AsyncStorage'da varsa doğrudan home ekranına yönlendir
-        if (storedUsername && storedPassword) {
-          router.push({
-            pathname: '/home',
-            params: { username: storedUsername }
-          });
+        const savedTheme = await AsyncStorage.getItem('theme');
+        if (savedTheme) {
+          setIsDarkMode(savedTheme === 'dark');  
         }
       } catch (error) {
-        console.error('Error checking login:', error);
+        console.error('Error loading theme:', error);
       }
     }
-    checkLogin();
+    loadTheme();
   }, []);
 
+  // Uygulama başladığında AsyncStorage'dan kullanıcı bilgilerini kontrol ediyoruz
+  
   // Kullanıcı giriş yaptıktan sonra bilgileri AsyncStorage'a kaydetme ve yönlendirme
   const handleLogin = async () => {
     setLoading(true);
@@ -65,7 +65,8 @@ export default function IndexScreen() {
   };
 
   return (
-    <View className="flex-1 justify-center bg-gray-100 px-6">
+    
+    <View className={`flex-1 justify-center px-6 ${isDarkMode ? 'bg-black' : 'bg-wihte'}`}>
       <View className="bg-white rounded-lg p-10 shadow-lg">
         <Text className="text-3xl font-bold mb-10 text-center text-gray-800">Login</Text>
         

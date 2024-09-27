@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, Image, StyleSheet, Text, TextInput, View, ActivityIndicator } from 'react-native';
 import axios from 'axios';
+import Header from '@/components/navigation/HeaderBar';
 
-// Define the product interface
+
 interface Product {
   id: number;
   title: string;
@@ -16,13 +17,14 @@ export default function ExploreScreen() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch products from the API
+
   useEffect(() => {
     async function fetchProducts() {
       try {
         const response = await axios.get('https://fakestoreapi.com/products');
         setProducts(response.data);
-        setFilteredProducts(response.data); // İlk başta tüm ürünleri göster
+        setFilteredProducts(response.data); 
+        
         setLoading(false);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -32,7 +34,7 @@ export default function ExploreScreen() {
     fetchProducts();
   }, []);
 
-  // Arama terimi değiştiğinde ürünleri filtrele
+  
   useEffect(() => {
     if (searchTerm) {
       const filtered = products.filter((product) =>
@@ -40,16 +42,16 @@ export default function ExploreScreen() {
       );
       setFilteredProducts(filtered);
     } else {
-      setFilteredProducts(products); // Arama terimi boşsa tüm ürünleri göster
+      setFilteredProducts(products);
     }
   }, [searchTerm, products]);
 
-  // Ürün kartını render etme
+  
   const renderProduct = ({ item }: { item: Product }) => (
     <View style={styles.productContainer}>
-      {/* Resmi küçük boyutta sol tarafa koy */}
+    
       <Image source={{ uri: item.image }} style={styles.productImage} />
-      {/* Metin bilgileri sağda */}
+   
       <View style={styles.productInfo}>
         <Text style={styles.productTitle}>{item.title}</Text>
         <Text style={styles.productPrice}>${item.price}</Text>
@@ -57,7 +59,6 @@ export default function ExploreScreen() {
     </View>
   );
 
-  // Yüklenme durumunu gösterme
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -69,7 +70,7 @@ export default function ExploreScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Arama çubuğu */}
+  
       <TextInput
         style={styles.searchInput}
         placeholder="Ürün ara..."
@@ -77,7 +78,7 @@ export default function ExploreScreen() {
         onChangeText={setSearchTerm}
       />
 
-      {/* Ürün listesi */}
+     
       <FlatList
         data={filteredProducts}
         renderItem={renderProduct}

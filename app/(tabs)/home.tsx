@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FlatList, Image, Text, View, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import axios from 'axios';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';  
 import 'nativewind';  
 
 import { useColorScheme } from 'nativewind';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Header from '@/components/navigation/HeaderBar';
 
 interface Product {
   id: number;
@@ -29,6 +30,22 @@ export default function HomeScreen() {
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark'); 
 
 
+  const loadTheme = async () => {
+    try {
+      const savedTheme = await AsyncStorage.getItem('theme');
+      if (savedTheme) {
+        setIsDarkMode(savedTheme === 'dark');  
+      } 
+    } catch (error) {
+      console.error('Error loading theme:', error);
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      loadTheme(); 
+    }, [useColorScheme])
+  );
+
   useEffect(() => {
     async function loadTheme() {
       try {
@@ -41,7 +58,9 @@ export default function HomeScreen() {
       }
     }
     loadTheme();
-  }, []);
+  }, []
+
+);
 
   
   
@@ -50,7 +69,7 @@ export default function HomeScreen() {
 
   const router = useRouter();
 
-  // Fetch products from the API
+
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -107,48 +126,51 @@ export default function HomeScreen() {
   }
 
   return (
-    <View className={`flex-1 items-center justify-center p-4 ${isDarkMode ? 'bg-black' : 'bg-wihte'}`}>
-      {/* Header with Welcome Text and Cart Icon */}
-      <View className="flex-row justify-between items-center mb-4">
+
+    <View className={`flex-1 items-center justify-center pt-6  ${isDarkMode ? 'bg-black' : 'bg-wihte'}`}>
+      
+      <Header/>
+      <View className="flex-row justify-between items-center mb-4 pt-5">
       
       <Text
       className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}> Welcome, {username}! </Text>
-        {/* Cart Icon */}
+       
         <TouchableOpacity
-          onPress={() =>
-            router.push({
-              pathname: "/cart",
-              params: { username }, // username parametresi ile geçiş yapılıyor
-            })
-          }
-        >
-          
-          <Ionicons name="settings" size={28} color={colorScheme === 'dark' ? 'grey' : 'grey'} style={{ marginHorizontal: 10 }} />
-
+        style={{ marginHorizontal: 20, padding: 10, borderRadius: 50, backgroundColor: isDarkMode ? '#1f2937' : '#e5e7eb', elevation: 4 }}
+        onPress={() =>
+          router.push({
+            pathname: "/cart",
+            params: { username },
+          })
+        }
+      >
+        <Ionicons name="settings" size={32} color={isDarkMode ? 'white' : 'black'} />
         </TouchableOpacity>
       </View>
   
-      {/* Search Input */}
+  
       <TextInput
-        className="h-12 border border-gray-300 rounded-lg mb-4 px-4 bg-white"
+        className="h-12 border border-gray-300 rounded-lg mb-4 px-20 bg-white"
         placeholder="Search by title..."
         value={searchQuery}
         onChangeText={text => setSearchQuery(text)}
       />
   
-      {/* Categories */}
+      
       <ScrollView horizontal className="mb-4">
         {categories.map((category) => (
           <TouchableOpacity
             key={category}
             className={`px-4 py-2 rounded-lg mr-5 mb-10 w-32 h-10 justify-center items-center ${
-              selectedCategory === category ? 'bg-blue-600' : 'bg-gray-200'
+              selectedCategory === category ? 'bg-blue-600' : 'bg-gray-300' 
             }`}
             onPress={() => handleCategorySelect(category)}
           >
             <Text
               className={`text-sm ${
                 selectedCategory === category ? 'text-white' : 'text-gray-800'
+                
+
               }`}
             >
               {category}
@@ -157,12 +179,12 @@ export default function HomeScreen() {
         ))}
       </ScrollView>
   
-      {/* Product List */}
+      
       <FlatList
         data={filteredProducts}
         renderItem={({ item }) => (
           <TouchableOpacity
-            className="bg-white rounded-lg p-3 mb-10 shadow-md w-44 h-70 mx-1"  // Sabit genişlik (w-44) ve sabit yükseklik (h-70)
+            className="bg-white rounded-lg p-3 mb-10 shadow-md w-44 h-70 mx-1"  
             onPress={() =>
               router.push({
                 pathname: "/detailedProducts",
@@ -172,8 +194,8 @@ export default function HomeScreen() {
           >
             <Image
               source={{ uri: item.image }}
-              className="w-38 h-40 mb-2 object-contain"  // Sabit yükseklik (h-40), genişlik tam kutuya göre (w-full)
-              resizeMode="contain"  // Görselin tamamının görünmesi için
+              className="w-38 h-40 mb-2 object-contain"  
+              resizeMode="contain" 
             />
             <Text className="text-sm font-semibold text-center">
               {item.title}
@@ -183,12 +205,14 @@ export default function HomeScreen() {
             </Text>
           </TouchableOpacity>
         )}
-        key={2} // FlatList'in yeniden render edilmesini sağlıyor
+        key={2} 
         numColumns={2}
-        columnWrapperStyle={{ justifyContent: "space-between" }}  // Eşit boşluk bırakıyoruz
+        columnWrapperStyle={{ justifyContent: "space-between" }}  
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 16 }}
       />
     </View>
   );
 }
+
+

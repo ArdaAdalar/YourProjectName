@@ -1,24 +1,63 @@
 import { Stack, Tabs } from 'expo-router';
-import React from 'react';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+
+import Drawer from 'expo-router/drawer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useColorScheme as nativewindUseColorScheme } from 'nativewind'
+
+import { Button, View, Text, ActivityIndicator} from 'react-native';
+
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const navigation = useNavigation();  
+  const systemScheme = nativewindUseColorScheme();
+  const [theme, setTheme] = useState(systemScheme);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+ 
+
 
   return (
    
-     <Stack>
-      <Stack.Screen name="home" options={{ headerShown: true  }} />
-      <Stack.Screen name="detailedProducts" options={{ headerShown: true }} />
+    <Drawer
+    screenOptions={{
+     
+      headerLeft: () => <></>, 
+      drawerPosition: "left", 
+    
+    }}
+  >
+    <Drawer.Screen
+      name="home"
+      options={{
+        drawerLabel: "Home",
+        title: "Home",
+        headerShown: false
+      
+      }}
+    />
+    <Drawer.Screen
+      name="cart"
+      options={{
+        drawerLabel: "Settings",
+        title: "Settings",
+        headerShown: false
+      }}
+    />
+    <Drawer.Screen
+      name="detailedProducts"
+      options={{
+        drawerLabel: "Product Detail",
+        title: "Product Detail",
+        headerShown: false
+      }}
+    />
+    
+   
+  </Drawer>
 
-    </Stack>
+    
      
 
   );
 }
+

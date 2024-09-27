@@ -1,14 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, SplashScreen, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Button, View, Text, ActivityIndicator, useColorScheme } from 'react-native';
-import { useColorScheme as nativewindUseColorScheme } from 'nativewind'; 
-
+import { Button, View, Text, ActivityIndicator} from 'react-native';
+import { useColorScheme } from 'nativewind';
+import 'nativewind';  
 
 export default function Layout() {
-  const systemScheme = nativewindUseColorScheme();
-  const [theme, setTheme] = useState(systemScheme);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const { colorScheme} = useColorScheme(); 
+  const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark'); 
 
   useEffect(() => {
     async function checkLogin() {
@@ -32,16 +31,20 @@ export default function Layout() {
   }, []);
 
   useEffect(() => {
-    
-    const loadTheme = async () => {
-      const savedTheme = await AsyncStorage.getItem('theme');
-     
-      if (savedTheme) {
-        setTheme(savedTheme);
+    async function loadTheme() {
+      try {
+        const savedTheme = await AsyncStorage.getItem('theme');
+        if (savedTheme) {
+          setIsDarkMode(savedTheme === 'dark');  
+        }
+      } catch (error) {
+        console.error('Error loading theme:', error);
       }
-    };
+    }
     loadTheme();
-  }, []);
+  }, []
+
+);
 
 
   return (
@@ -51,8 +54,11 @@ export default function Layout() {
        
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
       </Stack>
       
   
   );
 }
+
+

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import useCounter from '@/hooks/use_counter'; // Doğru yolu kullandığından emin ol
 
+
 export default function Counter() {
   const { count, increment, decrement } = useCounter();
 

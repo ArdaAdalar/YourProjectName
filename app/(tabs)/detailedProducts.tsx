@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import axios from 'axios';
-import 'nativewind';  // NativeWind'i dahil edin
+import 'nativewind'; 
 import { useColorScheme } from 'nativewind';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Counter from '@/components/counter';
+import useCounter from '@/hooks/use_counter'; 
+import Header from '@/components/navigation/HeaderBar';
+
 
 interface Product {
   id: number;
@@ -28,6 +31,14 @@ export default function DetailedProductScreen() {
   const router = useRouter();
   const { colorScheme} = useColorScheme();  
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark'); 
+
+  const [count, setCount] = useState(1);
+
+
+  const decrement = () => setCount(count => (count > 1 ? count - 1 : 1)); 
+  const increment = () => setCount(count => count + 1);
+
+
 
 
   useEffect(() => {
@@ -84,24 +95,42 @@ export default function DetailedProductScreen() {
     );
   }
 
-  return (
-    <ScrollView className={`flex-1 p-4 ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
-      
-      {/* Ürün Detayları */}
-      <View className="bg-white rounded-lg p-4 shadow-md">
-        <Image source={{ uri: product.image }} className="w-full h-60 object-contain mb-4" />
-        <Text className="text-lg font-semibold text-center mb-2">{product.title}</Text>
-        <Text className="text-xl font-bold text-blue-600 text-center mb-4">${product.price}</Text>
-        <Text className="text-sm text-gray-500 text-center">{product.description}</Text>
-        <Counter />
 
-        {/* Sepete Ekle Butonu */}
+  return (
+
+
+    <ScrollView className={`flex-1 pt-6 ${isDarkMode ? 'bg-neutral-500' : 'bg-white'}`}>
+      <Header/>
+      
+
+      <View className="bg-white rounded-lg p-4 shadow-md">
+        <Image resizeMode="contain" source={{ uri: product.image }} className="w-full h-60 object-contain mb-4" />
+        <Text className="text-lg font-semibold text-center mb-2">{product.title}</Text>
+        <Text className="text-sm text-gray-500 text-center pb-5">{product.description}</Text>
+        
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <TouchableOpacity onPress={decrement} style={{ padding: 10, backgroundColor: 'gray' }}>
+              <Text style={{ color: 'white' }}>-</Text>
+            </TouchableOpacity>
+
+            <Text style={{ fontSize: 24, marginHorizontal: 20 }}>{count}</Text>
+
+         
+            <TouchableOpacity onPress={increment} style={{ padding: 10, backgroundColor: 'gray' }}>
+              <Text style={{ color: 'white' }}>+</Text>
+            </TouchableOpacity>
+             
+        </View>
+        <Text className="text-xl font-bold text-blue-600 text-center pt-5 mb-4">${product.price * count}</Text>
+       
+
+      
         <TouchableOpacity className="bg-blue-600 rounded-lg mt-6 p-3 justify-center items-center" onPress={() => console.log('Sepete eklendi')}>
           <Text className="text-white text-lg font-semibold">Add to Cart</Text>
         </TouchableOpacity>
       </View>
       
-      {/* Benzer Ürünler */}
+     
       <View className="mt-8">
         <Text className= {`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-black'}`}>Similar Products</Text>
        
@@ -112,7 +141,7 @@ export default function DetailedProductScreen() {
               className="bg-white rounded-lg p-4 shadow-md w-40 h-60 mx-2"
               onPress={() => router.push({ pathname: '/detailedProducts', params: { productId: item.id } })}
             >
-              <Image source={{ uri: item.image }} className="w-full h-32 object-contain mb-2" />
+              <Image resizeMode="contain" source={{ uri: item.image }} className="w-full h-32 object-contain mb-2" />
               <Text className="text-sm font-semibold text-center">{item.title}</Text>
               <Text className="text-sm text-gray-500 text-center">${item.price}</Text>
             </TouchableOpacity>
@@ -120,5 +149,6 @@ export default function DetailedProductScreen() {
         </ScrollView>
       </View>
     </ScrollView>
+  
   );
 }

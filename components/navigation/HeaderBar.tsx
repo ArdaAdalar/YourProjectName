@@ -86,7 +86,8 @@ const Header = () => {
           <TouchableOpacity onPress={toggleMenu} style={styles.closeButton}>
             <MaterialCommunityIcons name="close" size={28} color="#FFFFFF" />
           </TouchableOpacity>
-          <Text style={styles.menuHeader}>Clothing Market</Text>
+
+          <Text style={styles.menuHeader}>Shopping Market</Text>
           <Text style={styles.menuGreeting}>Everthing you search for!</Text>
 
           <TouchableOpacity onPress={() => handlePress('/home')} style={styles.menuItem}>

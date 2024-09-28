@@ -18,42 +18,16 @@ export default function TabLayout() {
 
   return (
    
-    <Drawer
-    screenOptions={{
-     
-      headerLeft: () => <></>, 
-      drawerPosition: "left", 
-    
-    }}
-  >
-    <Drawer.Screen
-      name="home"
-      options={{
-        drawerLabel: "Home",
-        title: "Home",
-        headerShown: false
-      
-      }}
-    />
-    <Drawer.Screen
-      name="cart"
-      options={{
-        drawerLabel: "Settings",
-        title: "Settings",
-        headerShown: false
-      }}
-    />
-    <Drawer.Screen
-      name="detailedProducts"
-      options={{
-        drawerLabel: "Product Detail",
-        title: "Product Detail",
-        headerShown: false
-      }}
-    />
-    
-   
-  </Drawer>
+
+
+<Stack>
+        
+       
+<Stack.Screen name="home" options={{ headerShown: false }} />
+<Stack.Screen name="detailedProducts" options={{ headerShown: false }} />
+<Stack.Screen name="cart" options={{ headerShown: false }} />
+
+</Stack>
 
     
      

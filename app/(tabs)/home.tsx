@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';  
 import 'nativewind';  
-
 import { useColorScheme } from 'nativewind';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Header from '@/components/navigation/HeaderBar';
@@ -28,7 +27,23 @@ export default function HomeScreen() {
 
   const { colorScheme} = useColorScheme();  
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark'); 
+  const [username2, setUsername] = useState<string | null>(null);
 
+  // AsyncStorage'dan username'i çekmek için useEffect kullanıyoruz
+  useEffect(() => {
+    const loadUsername = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem('username');
+        if (storedUsername !== null) {
+          setUsername(storedUsername); // username state'ini güncelle
+        }
+      } catch (error) {
+        console.error('Error loading username from AsyncStorage', error);
+      }
+    };
+
+    loadUsername();
+  }, []);
 
   const loadTheme = async () => {
     try {
@@ -102,19 +117,6 @@ export default function HomeScreen() {
     setSelectedCategory(category === selectedCategory ? null : category);
   };
 
-  const renderProduct = ({ item }: { item: Product }) => (
-    <TouchableOpacity
-      className="bg-white rounded-lg p-4 mb-4 shadow-md"
-      onPress={() => router.push({
-        pathname: '/detailedProducts',
-        params: { productId: item.id }
-      })}
-    >
-      <Image source={{ uri: item.image }} className="w-40 h-40 mb-4 object-contain" />
-      <Text className="text-lg font-semibold text-center">{item.title}</Text>
-      <Text className="text-base text-gray-500 text-center">${item.price}</Text>
-    </TouchableOpacity>
-  );
 
   if (loading) {
     return (
@@ -133,7 +135,7 @@ export default function HomeScreen() {
       <View className="flex-row justify-between items-center mb-4 pt-5">
       
       <Text
-      className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}> Welcome, {username}! </Text>
+      className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}> Welcome, {username2}! </Text>
        
         <TouchableOpacity
         style={{ marginHorizontal: 20, padding: 10, borderRadius: 50, backgroundColor: isDarkMode ? '#1f2937' : '#e5e7eb', elevation: 4 }}
